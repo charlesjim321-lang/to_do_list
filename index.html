@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body{
+            margin:0;
+            padding:0;
+        }
+        *{
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar bg-dark">
+        <div class="container">
+            <a href="#" class="navbar-brand" style="color:white; margin:auto;">ToDoLIst <span class="badge round-pilled bg-danger">0</span></a>
+        </div>
+    </nav>
+    <div class="container-solid pt-5" style="background-image: url(./img/1.jpg); background-repeat:no-repeat; background-position:center; background-size:cover; height: 600px; width:100%;">
+        <div class="container" style="max-width:600px; background-color: rgba(0, 0, 0, 0.3); top:10px; ">
+            <form action="#" class="input-group  pt-2 " >
+                <input type="text" class="form-control mt-2">
+                <button class="btn btn-dark mt-2">Add</button>
+            </form>
+            <ul id="todo" class="list-group m-4" style="color:white;"></ul>
+            <ul id="done" class="list-group m-4 opacity-50" style="color:white;"></ul>
+        </div>
+    </div>
+    
+    <script>
+        //7th step browser မှာ refresh လုပ်လိုက်ရင်လည်း ရေးပြီးသားစာတွေပေါ်နေစေဖို့ လုပ်တာ။ 
+    let data=getData();
+    data.map(item => createItem(item.text)); //getData()က ရလာတဲ့ dataတွေကို map နဲ့ loop ပတ်လိုက်တာ။​ 
+    updateCount();
+
+    //5th step (saving data in localStorage)
+    function getData(){
+        return JSON.parse(localStorage.getItem("todos")) || [] ;//localStorage.getItem("data")တွေကို ရယူမယ်။ အဲ့အခါ JASON.parseနဲ့ဆို object ပုံစံပြပေးလို့ အဲ့တာနဲ့ထုတ်တာပိုကောင်း။ တကယ်လို့ ထုတ်ပြစရာ data မရှိတဲ့အခါ null မပေါ်နေပဲ array အလွတ်လေးပြနေရအောင် or || ဆိုပြီး array အလွတ်ကိုရေး။​ || ဒီသင်္ကေတက or လို့ခေါ်တယ်။  
+    }
+
+    //6th step 
+    function saveData(text){
+        let data=getData();
+        data.push({text, done:false}); // အဲ့တာက { text: text, done: false } ရဲ့အတိုကောက်၊​ done:false ဆိုတာက todo list တွေရဲ့ feature တစ်ခု၊​မထည့်လည်းရ။ 
+        localStorage.setItem("todos",JSON.stringify(data)); //ဒီက "data" ဆိုတာက just a name ပဲ၊ တခြားနာမည်ပေးလို့ရ။
+    }
+
+    //8th step (အမှိုက်ပုံးထဲထည့်လိုက်တဲ့ data တွေကို local storage မှာပါ ပျက်အောင်လုပ်တာ။)
+    function deleteData(text){
+        let data= getData();
+        let result = data.filter(item=>item.text!=text); // ဒါက function ထဲဝင်လာမယ့် textက နဂိုရှိနေတဲ့ list ထဲက text နဲ့ မတူနေမယ့်ဟာတွေကိုပဲ resultမှာဆက်ပြပြီးသိမ်းထားမယ်လို့ဆိုလိုတာ။ ဒါကြောင့် deleteData("banana") ဆိုပါစို့။ အဲ့banana က တကယ်လို့ list ထဲမှာပါတာနဲ့ တူနေတယ်ဆိုရင် အဲ့ banana ကို ဖယ်ပြီးသား (အဲ့bananaနဲ့ မတူတေ့ာမယ့်ကျန်တဲ့text)တွေကိုပဲ result အနေနဲ့ပြမှာ။
+        localStorage.setItem("todos",JSON.stringify(result));
+    }
+
+    // function checkData(text){
+    //     let data = getData();
+    //     let result = data.map(item=>{
+    //         if(item.text==text) item.done=true;
+    //         return item;
+    //     });
+    //     localStorage.setItem("todos",JSON.stringify(result));
+    // }
+
+        document.querySelector("form").onsubmit=e=>{
+            e.preventDefault();
+            let text = document.querySelector("input").value;
+            if (text=="") return false;
+            createItem(text);
+            saveData(text);
+            updateCount();
+            e.currentTarget.reset();
+        }
+        // document.querySelector("input").onkeydown = e =>{
+        //     if(e.key=="Enter"){
+        //         document.querySelector("button").onclick();
+        //     }
+        // }
+        function updateCount(){
+            document.querySelector(".badge").textContent=
+            document.querySelectorAll("#todo li").length; //ဒီနေရာမှာ todoထဲက list ကိုရွေးယူရမှာရယ်၊ နောက်ပြီးဝင်လာသမျှ list တွေကို ထည့်ပေးရမှာဆိုတာရယ်ကို သတိပြုရမယ်။
+        }
+        function createItem(text){
+            let li = document.createElement("li");
+            li.classList.add("list-group-item");
+            li.textContent=text;
+
+            let del = document.createElement("a");
+            del.setAttribute("href","#");
+            del.classList.add("fa-solid","fa-trash","text-danger","float-end");
+            del.onclick=()=>{
+                li.remove();
+                deleteData(text);
+            
+            }
+            li.appendChild(del);
+
+            let check=document.createElement("a")
+            check.setAttribute("href","#");
+            check.classList.add("fa-solid","fa-check","float-start");
+            check.onclick=()=>{
+                document.querySelector("#done").appendChild(li);
+                check.remove(); //ဒီနေရာမှာ li.remove()လုပ်လိုက်မိရင် list ကပျက်သွားမှာဖြစ်တယ်။ အခုလုပ်ချင်တာက အဲ့လိုအချိန်ဆို check သင်္ကေတပျောက်ချင်တာဖြစ်တဲ့အတွက် check.remove();ဖြစ်ရမယ်။
+            }
+            li.appendChild(check);
+
+            document.querySelector("#todo").appendChild(li);
+        }
+    </script>
+</body>
+</html>
